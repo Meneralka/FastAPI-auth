@@ -1,0 +1,42 @@
+services:
+
+  pg:
+    image: postgres
+    environment:
+      - POSTGRES_DB=auth
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    networks:
+      - shop
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user -d auth" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  app:
+    networks:
+      - shop
+    image: fastapi:latest
+    ports:
+      - "12021:8000"
+    environment:
+      - DB__URL=postgresql+asyncpg://user:password@pg:5432/auth
+    depends_on:
+      pg:
+        condition: service_healthy
+    command: >
+      sh -c "alembic upgrade head && uvicorn main:main_app --host 0.0.0.0 --port 8000"
+    restart: unless-stopped
+
+networks:
+  shop:
+    driver: bridge
+
+volumes:
+  pg_data:
