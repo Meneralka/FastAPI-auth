@@ -38,12 +38,12 @@ def create_jwt(
 def create_token_factory(token_type: str):
     def create_token(
         user: UserAuth,
-        sui: str | None = None,
+        session_uuid: str | None = None,
     ) -> str:
-        jwt_payload = {"sub": user.id, "username": user.username, "sui": sui}
+        jwt_payload = {"sub": user.id, "username": user.username, "session_uuid": session_uuid}
         log.info(
             "[CREATE TOKEN] for %(user)s - (session_uuid=%(session_uuid)s)"
-            % {"user": user.id, "session_uuid": sui}
+            % {"user": user.id, "session_uuid": session_uuid}
         )
         return create_jwt(
             token_type=token_type,
