@@ -48,7 +48,7 @@ def get_user_by_token_of_type(token_type: str):
         payload: dict = Depends(get_current_token_payload),
     ) -> User:
         validate_token_type(payload=payload, got_token_type=token_type)
-        session_info = await get_session_info(session=session, uuid=payload.get("sui"))
+        session_info = await get_session_info(session=session, uuid=payload.get("session_uuid"))
 
         if session_info is None:
             raise TokenExpiredException
@@ -71,14 +71,14 @@ get_current_auth_user_for_refresh = get_user_by_token_of_type(REFRESH_TOKEN_TYPE
 def get_session_uuid_from_payload(
     payload: dict = Depends(get_current_token_payload),
 ):
-    return payload.get("sui")
+    return payload.get("session_uuid")
 
 
 async def get_session_info_from_payload(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
     payload: dict = Depends(get_current_token_payload),
 ):
-    session_info = await get_session_info(session=session, uuid=payload.get("sui"))
+    session_info = await get_session_info(session=session, uuid=payload.get("session_uuid"))
 
     if session_info is None:
         raise TokenExpiredException
