@@ -19,7 +19,6 @@ from crud.tokens import get_session_info
 from crud.users import get_user_by_id
 from utils.auth import validate_token_type
 from core.config import ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE
-from core.schemas.user import UserAuth, UserReg
 from utils import auth as auth_utils
 from core.models.user import SessionStatus, User
 
