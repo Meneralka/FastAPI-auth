@@ -1,5 +1,4 @@
 import uuid
-from datetime import datetime, timedelta, UTC
 
 from typing import Annotated, Sequence
 
@@ -38,17 +37,18 @@ router = APIRouter(
 
 @router.post("/login", response_model=Tokens)
 async def auth_user_issue_jwt(
-    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
     response: Response,
     request: Request,
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
     user: UserRead = Depends(validate_auth_user),
 ):
-    session_uuid = str(uuid.uuid4())
     user_agent_str = parse(request.headers.get("User-Agent", "Unknown"))
     session_name = (
         f"{user_agent_str.browser.family} {user_agent_str.browser.version_string},"
         f" {user_agent_str.os.family} {user_agent_str.os.version_string}"
     )
+
+    session_uuid = str(uuid.uuid4())
 
     user_session = SessionCreate(
         uuid=session_uuid,
@@ -72,6 +72,15 @@ async def auth_user_issue_jwt(
         secure=True,
         httponly=True,
     )
+
+    response.set_cookie(
+        "access_token",
+        access_token,
+        max_age=settings.auth.access_token_expire_minutes,
+        secure=True,
+        httponly=True,
+    )
+
     log.info(
         "[%(ip)s] [LOGIN] access_token %(user)s (id=%(id)s)"
         % {"ip": request.client.host, "user": user.username, "id": user.id},
@@ -86,11 +95,11 @@ async def auth_user_issue_jwt(
 async def auto_refresh_jwt(
     request: Request,
     user: UserRead = Depends(get_current_auth_user_for_refresh),
-    sui: str = Depends(get_session_uuid_from_payload),
+    session_uuid: str = Depends(get_session_uuid_from_payload),
 ):
     access_token = create_access_token(
         user=user,
-        sui=sui,
+        sui=session_uuid,
     )
     log.info(
         "[%(ip)s] [REFRESH] access_token %(user)s (id=%(id)s)"
@@ -115,11 +124,11 @@ async def logout_user(
         httponly=True,
     )
     log.info(
-        "[%(ip)s] [LOGOUT] session %(sui)s (id=%(id)s)"
+        "[%(ip)s] [LOGOUT] session %(session_uuid)s (id=%(id)s)"
         % {
             "ip": request.client.host,
             "id": session_data.uuid,
-            "sui": session_data.uuid,
+            "session_uuid": session_data.uuid,
         },
     )
     return ORJSONResponse({"success": True})
@@ -140,11 +149,11 @@ async def abort_user_session(
         session=session, current_user_uuid=session_data.sub, uuid=sui
     )
     log.info(
-        "[%(ip)s] [ABORT SESSION] session %(sui)s (id=%(id)s)"
+        "[%(ip)s] [ABORT SESSION] session %(session_uuid)s (id=%(id)s)"
         % {
             "ip": request.client.host,
             "id": sui,
-            "sui": session_data.sub,
+            "session_uuid": session_data.sub,
         },
     )
     return ORJSONResponse({"success": True})
