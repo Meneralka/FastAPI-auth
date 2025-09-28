@@ -68,7 +68,9 @@ async def get_session_info_from_payload(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
     payload: dict = Depends(TokenPayloadGetter()),
 ):
-    session_info = await get_session_info(session=session, uuid=payload.get("session_uuid"))
+    session_info = await get_session_info(
+        session=session, uuid=payload.get("session_uuid")
+    )
 
     if session_info is None:
         raise TokenExpiredException
