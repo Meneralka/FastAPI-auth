@@ -64,9 +64,15 @@ get_current_auth_user = get_user_by_token_of_type(ACCESS_TOKEN_TYPE)
 get_current_auth_user_for_refresh = get_user_by_token_of_type(REFRESH_TOKEN_TYPE)
 
 
+def get_session_uuid_from_payload(
+    payload: dict = Depends(get_current_token_payload),
+):
+    return payload.get("session_uuid")
+
+
 async def get_session_info_from_payload(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
-    payload: dict = Depends(TokenPayloadGetter()),
+    payload: dict = Depends(get_current_token_payload),
 ):
     session_info = await get_session_info(session=session, uuid=payload.get("session_uuid"))
 
