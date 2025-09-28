@@ -1,8 +1,6 @@
-import uuid
-from typing import Annotated
+from typing import Annotated, Literal
 
-from fastapi import Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import Depends, Request
 from jwt import InvalidTokenError
 from sqlalchemy.ext.asyncio import AsyncSession
 from loguru import logger as log
@@ -13,7 +11,6 @@ from api.exceptions.auth import (
     TokenExpiredException,
 )
 
-# from .fake_db import users_db
 from core.models import db_helper
 from crud.tokens import get_session_info
 from crud.users import get_user_by_id
