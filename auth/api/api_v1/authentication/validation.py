@@ -19,7 +19,6 @@ from core.config import ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE
 from utils import auth as auth_utils
 from core.models.user import SessionStatus, User
 
-http_bearer = HTTPBearer(auto_error=False)
 
 
 async def get_current_token_payload(
