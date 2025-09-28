@@ -16,22 +16,20 @@ from crud.tokens import (
     abort_another_session,
 )
 from .helpers import create_access_token, create_refresh_token, validate_auth_user
-from core.config import settings
+from core.config import settings, REFRESH_TOKEN_TYPE
 from core.schemas.user import UserRead
 from core.models import db_helper
 from .validation import (
     get_current_auth_user_for_refresh,
     get_current_auth_user,
-    http_bearer,
-    get_session_uuid_from_payload,
     get_session_info_from_payload,
+    TokenPayloadGetter,
 )
 from api.exceptions.auth import NeedMorePermission
 
 router = APIRouter(
     prefix=settings.api.v1.demo_auth,
     tags=["Auth"],
-    dependencies=[Depends(http_bearer)],
 )
 
 
@@ -59,11 +57,11 @@ async def auth_user_issue_jwt(
 
     access_token = create_access_token(
         user=user,
-        sui=session_uuid,
+        session_uuid=session_uuid,
     )
     refresh_token = create_refresh_token(
         user=user,
-        sui=session_uuid,
+        session_uuid=session_uuid,
     )
     response.set_cookie(
         "refresh_token",
@@ -76,7 +74,7 @@ async def auth_user_issue_jwt(
     response.set_cookie(
         "access_token",
         access_token,
-        max_age=settings.auth.access_token_expire_minutes,
+        max_age=settings.auth.access_token_expire_minutes * 24 * 60,
         secure=True,
         httponly=True,
     )
@@ -94,12 +92,20 @@ async def auth_user_issue_jwt(
 @router.post("/refresh", response_model=Tokens, response_model_exclude_none=True)
 async def auto_refresh_jwt(
     request: Request,
+    response: Response,
     user: UserRead = Depends(get_current_auth_user_for_refresh),
-    session_uuid: str = Depends(get_session_uuid_from_payload),
+    payload: dict = Depends(TokenPayloadGetter(REFRESH_TOKEN_TYPE)),
 ):
     access_token = create_access_token(
         user=user,
-        sui=session_uuid,
+        session_uuid=payload.get("session_uuid"),
+    )
+    response.set_cookie(
+        "access_token",
+        access_token,
+        max_age=settings.auth.access_token_expire_minutes,
+        secure=True,
+        httponly=True,
     )
     log.info(
         "[%(ip)s] [REFRESH] access_token %(user)s (id=%(id)s)"
