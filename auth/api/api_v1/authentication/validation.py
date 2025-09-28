@@ -38,7 +38,7 @@ class TokenPayloadGetter:
 def get_user_by_token_of_type(token_type: Literal["access", "refresh"]):
     async def get_user_by_token_sub(
         session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
-        payload: dict = Depends(get_current_token_payload),
+        payload: dict = Depends(TokenPayloadGetter(token_type)),
     ) -> User:
         validate_token_type(payload=payload, got_token_type=token_type)
         session_info = await get_session_info(session=session, uuid=payload.get("session_uuid"))
