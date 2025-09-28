@@ -14,7 +14,8 @@ class LoggerSettings(BaseSettings):
         "{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {function} - {message}"
     )
     cmd_format: str = (
-        "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{function}</cyan> - <level>{message}</level>"
+        "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{function}</cyan> -"
+        " <level>{message}</level>"
     )
     rotation: str = "10 MB"
     retention: str = "10 days"
