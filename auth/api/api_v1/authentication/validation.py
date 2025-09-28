@@ -20,21 +20,19 @@ from utils import auth as auth_utils
 from core.models.user import SessionStatus, User
 
 
+class TokenPayloadGetter:
+    def __init__(self, token_type: Literal["access", "refresh"] = ACCESS_TOKEN_TYPE):
+        self.token_type = token_type + "_token"
 
-async def get_current_token_payload(
-    credentials: HTTPAuthorizationCredentials = Depends(http_bearer),
-) -> dict:
-    if credentials:
-        token = str(credentials.credentials)
-    else:
-        raise TokenUnidentifiedException
-    try:
-        payload = auth_utils.decode_jwt(
-            token=token,
-        )
-    except InvalidTokenError:
-        raise InvalidTokenException
-    return payload
+    async def __call__(self, request: Request) -> dict:
+        token = request.cookies.get(self.token_type)
+        if not token:
+            raise TokenUnidentifiedException
+        try:
+            payload = auth_utils.decode_jwt(token=token)
+        except InvalidTokenError:
+            raise InvalidTokenException
+        return payload
 
 
 def get_user_by_token_of_type(token_type: str):
