@@ -35,25 +35,31 @@ def create_jwt(
     return token
 
 
-def create_token_factory(token_type: str):
-    def create_token(
+class CreateToken:
+    def __init__(self, token_type: str) -> None:
+        self.token_type = token_type
+
+    def __call__(
+        self,
         user: UserAuth,
-        session_uuid: str | None = None,
+        session_uuid: str,
     ) -> str:
-        jwt_payload = {"sub": user.id, "username": user.username, "session_uuid": session_uuid}
+        jwt_payload = {
+            "sub": user.id,
+            "username": user.username,
+            "session_uuid": session_uuid,
+        }
         log.info(
             "[CREATE TOKEN] for %(user)s - (session_uuid=%(session_uuid)s)"
             % {"user": user.id, "session_uuid": session_uuid}
         )
         return create_jwt(
-            token_type=token_type,
+            token_type=self.token_type,
             payload=jwt_payload,
             expire_timedelta=timedelta(
                 minutes=settings.auth.access_token_expire_minutes
             ),
         )
-
-    return create_token
 
 
 async def validate_auth_user(
@@ -69,16 +75,17 @@ async def validate_auth_user(
             % {"username": username[:20], "ip": request.client.host}
         )
         raise InvalidCredentialsException
-    if auth_utils.validate_password(
+    if not auth_utils.validate_password(
         password=password, hashed_password=user.hashed_password
     ):
-        return user
-    log.info(
-        "[TRY TO LOGIN] failed attempt from %(ip)s for user %(username)s"
-        % {"username": username, "ip": request.client.host}
-    )
-    raise InvalidCredentialsException
+        log.info(
+            "[TRY TO LOGIN] failed attempt from %(ip)s for user %(username)s"
+            % {"username": username, "ip": request.client.host}
+        )
+        raise InvalidCredentialsException
+
+    return user
 
 
-create_access_token = create_token_factory(ACCESS_TOKEN_TYPE)
-create_refresh_token = create_token_factory(REFRESH_TOKEN_TYPE)
+create_access_token = CreateToken(ACCESS_TOKEN_TYPE)
+create_refresh_token = CreateToken(REFRESH_TOKEN_TYPE)
