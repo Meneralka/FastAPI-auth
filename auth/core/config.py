@@ -1,5 +1,5 @@
 from pathlib import Path
-from pydantic import BaseModel, PostgresDsn
+from pydantic import BaseModel, PostgresDsn, NatsDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).parent.parent
@@ -44,6 +44,14 @@ class ApiV1Prefix(BaseModel):
     register_: str = "/register"
 
 
+class NatsConfig(BaseModel):
+    url: NatsDsn = "nats://nats:4222"
+
+
+class FastStream(BaseModel):
+    nats: NatsConfig = NatsConfig()
+
+
 class Api(BaseModel):
     prefix: str = "/api"
     v1: ApiV1Prefix = ApiV1Prefix()
@@ -76,6 +84,7 @@ class Settings(BaseSettings):
     api: Api = Api()
     db: DatabaseConfig
     auth: AuthJWT = AuthJWT()
+    faststream: FastStream = FastStream()
     logs: LoggerSettings = LoggerSettings()
 
 
