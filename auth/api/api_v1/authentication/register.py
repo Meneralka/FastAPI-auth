@@ -4,6 +4,7 @@ from fastapi import Depends, APIRouter, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.config import settings
+from core.fs_broker import broker
 from core.models import db_helper
 
 from core.schemas.user import UserReg, UserBase
@@ -29,5 +30,9 @@ async def register_user(
     user: UserReg = Depends(validate_register_form),
 ):
     new_user = await db_create_user(session, user)
+    await broker.publish(
+        subject="user-register",
+        message=user.username,
+    )
     log.info("[REGISTER] New user: %(username)s" % {"username": new_user.username})
     return new_user
