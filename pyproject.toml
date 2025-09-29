@@ -16,6 +16,7 @@ python-multipart = "^0.0.20"
 orjson = "^3.11.1"
 loguru = "^0.7.3"
 user-agents = "^2.2.0"
+faststream = {extras = ["cli", "nats"], version = "^0.5.48"}
 
 [tool.poetry.group.dev.dependencies]
 black = "^25.1.0"
