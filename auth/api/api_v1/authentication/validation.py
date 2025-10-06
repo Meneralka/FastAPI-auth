@@ -3,7 +3,6 @@ from typing import Annotated, Literal
 from fastapi import Depends, Request
 from jwt import InvalidTokenError
 from sqlalchemy.ext.asyncio import AsyncSession
-from loguru import logger as log
 
 from api.exceptions.auth import (
     InvalidTokenException,
