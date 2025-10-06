@@ -28,10 +28,10 @@ async def register_user(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
     user: UserReg = Depends(validate_register_form),
 ):
+
     new_user = await db_create_user(session, user)
-    await broker.publish(
-        subject="user-register",
-        message=user.username,
+    log.info(
+        "[REGISTER] New user: %(username)s with id: %(id)s"
+        % {"username": user.username, 'id': new_user.id},
     )
-    log.info("[REGISTER] New user: %(username)s" % {"username": new_user.username})
     return new_user
