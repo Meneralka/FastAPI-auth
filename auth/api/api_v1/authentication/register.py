@@ -4,7 +4,6 @@ from fastapi import Depends, APIRouter, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.config import settings
-from core.fs_broker import broker
 from core.models import db_helper
 
 from core.schemas.user import UserReg, UserBase
