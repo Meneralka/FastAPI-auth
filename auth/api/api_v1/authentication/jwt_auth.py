@@ -55,11 +55,11 @@ async def auth_user_issue_jwt(
     )
     await create_session(session, user_session)
 
-    access_token = create_access_token(
+    access_token = await create_access_token(
         user=user,
         session_uuid=session_uuid,
     )
-    refresh_token = create_refresh_token(
+    refresh_token = await create_refresh_token(
         user=user,
         session_uuid=session_uuid,
     )
