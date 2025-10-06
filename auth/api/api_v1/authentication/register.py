@@ -32,6 +32,6 @@ async def register_user(
     new_user = await db_create_user(session, user)
     log.info(
         "[REGISTER] New user: %(username)s with id: %(id)s"
-        % {"username": user.username, 'id': new_user.id},
+        % {"username": user.username, "id": new_user.id},
     )
     return new_user
