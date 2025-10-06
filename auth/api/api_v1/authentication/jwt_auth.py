@@ -15,7 +15,7 @@ from crud.tokens import (
     get_user_sessions,
     abort_another_session,
 )
-from .helpers import create_access_token, create_refresh_token, validate_auth_user
+from .helpers import create_access_token, create_refresh_token, validate_and_get_user
 from core.config import settings, REFRESH_TOKEN_TYPE
 from core.schemas.user import UserRead
 from core.models import db_helper
@@ -38,7 +38,7 @@ async def auth_user_issue_jwt(
     response: Response,
     request: Request,
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
-    user: UserRead = Depends(validate_auth_user),
+    user: UserRead = Depends(validate_and_get_user),
 ):
     user_agent_str = parse(request.headers.get("User-Agent", "Unknown"))
     session_name = (

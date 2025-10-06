@@ -39,7 +39,7 @@ class CreateToken:
     def __init__(self, token_type: str) -> None:
         self.token_type = token_type
 
-    def __call__(
+    async def __call__(
         self,
         user: UserAuth,
         session_uuid: str,
@@ -62,7 +62,7 @@ class CreateToken:
         )
 
 
-async def validate_auth_user(
+async def validate_and_get_user(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
     request: Request,
     username: str = Form(),
