@@ -33,7 +33,7 @@ router = APIRouter(
 )
 
 
-@router.post("/login", response_model=Tokens)
+@router.post("/login")
 async def auth_user_issue_jwt(
     response: Response,
     request: Request,
@@ -83,10 +83,7 @@ async def auth_user_issue_jwt(
         "[%(ip)s] [LOGIN] access_token %(user)s (id=%(id)s)"
         % {"ip": request.client.host, "user": user.username, "id": user.id},
     )
-    return Tokens(
-        access_token=access_token,
-        refresh_token=refresh_token,
-    )
+    return ORJSONResponse({"status": "success"})
 
 
 @router.post("/refresh", response_model=Tokens, response_model_exclude_none=True)
