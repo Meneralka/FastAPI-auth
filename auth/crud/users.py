@@ -48,6 +48,7 @@ async def create_user(session: AsyncSession, user_create: UserReg) -> User:
     try:
         await session.commit()
         # await session.refresh(user)
+
     except IntegrityError as e:
         if e.orig.__cause__.__class__ == UniqueViolationError:
             raise ValueAlreadyExistsException
