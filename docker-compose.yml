@@ -19,13 +19,6 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
 
-  nats:
-    image: nats:2.11-alpine
-    ports:
-      - "4222:4222"
-    networks:
-      - shop
-
   app:
     networks:
       - shop
