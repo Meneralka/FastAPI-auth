@@ -5,6 +5,7 @@ from api.exceptions.auth import SessionNotFound
 from core.models.user import Session, SessionStatus
 
 from core.schemas.token import SessionCreate
+from core.redis import redis_cache
 
 
 async def create_session(
@@ -15,7 +16,7 @@ async def create_session(
     session.add(new_session)
     await session.commit()
 
-
+@redis_cache(read=True)
 async def get_user_sessions(
     session: AsyncSession,
     sub_id: str,
@@ -25,6 +26,7 @@ async def get_user_sessions(
     return result.all()
 
 
+@redis_cache(read=True)
 async def get_session_info(
     session: AsyncSession,
     uuid: str,
@@ -36,6 +38,7 @@ async def get_session_info(
     return result.one_or_none()
 
 
+@redis_cache(write=True)
 async def abort_session(
     session: AsyncSession,
     uuid: str,
@@ -49,6 +52,7 @@ async def abort_session(
     await session.commit()
 
 
+@redis_cache(write=True)
 async def abort_another_session(
     session: AsyncSession,
     current_user_uuid: str,
