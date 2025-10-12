@@ -66,7 +66,6 @@ async def auth_user_issue_jwt(
         "refresh_token",
         refresh_token,
         max_age=settings.auth.refresh_token_expire_days * 30 * 24 * 60,
-        secure=True,
         httponly=True,
     )
 
@@ -74,7 +73,6 @@ async def auth_user_issue_jwt(
         "access_token",
         access_token,
         max_age=settings.auth.access_token_expire_minutes * 24 * 60,
-        secure=True,
         httponly=True,
     )
 
@@ -99,7 +97,7 @@ async def auto_refresh_jwt(
     response.set_cookie(
         "access_token",
         access_token,
-        max_age=settings.auth.access_token_expire_minutes,
+        max_age=settings.auth.access_token_expire_minutes * 60* 24,
         secure=True,
         httponly=True,
     )
