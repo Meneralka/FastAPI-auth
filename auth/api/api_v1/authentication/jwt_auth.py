@@ -129,7 +129,7 @@ async def logout_user(
             "session_uuid": session_data.uuid,
         },
     )
-    return ORJSONResponse({"success": True})
+    return {"success": True}
 
 
 @router.post("/abort")
@@ -154,7 +154,7 @@ async def abort_user_session(
             "session_uuid": session_data.sub,
         },
     )
-    return ORJSONResponse({"success": True})
+    return {"success": True}
 
 
 @router.get("/sessions", response_model=Sequence[SessionRead])
