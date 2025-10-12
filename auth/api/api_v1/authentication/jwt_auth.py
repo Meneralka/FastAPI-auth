@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from loguru import logger as log
 from user_agents import parse
 
-from core.schemas.token import Tokens, SessionCreate, SessionRead
+from core.schemas.token import SessionCreate, SessionRead
 from crud.tokens import (
     create_session,
     abort_session,
@@ -85,7 +85,7 @@ async def auth_user_issue_jwt(
     return {"success": True}
 
 
-@router.post("/refresh", response_model=Tokens, response_model_exclude_none=True)
+@router.post("/refresh")
 async def auto_refresh_jwt(
     request: Request,
     response: Response,
@@ -107,9 +107,7 @@ async def auto_refresh_jwt(
         "[%(ip)s] [REFRESH] access_token %(user)s (id=%(id)s)"
         % {"ip": request.client.host, "user": user.username, "id": user.id},
     )
-    return Tokens(
-        access_token=access_token,
-    )
+    return {"success": True}
 
 
 @router.post("/logout", response_model_exclude_none=True)
