@@ -90,7 +90,7 @@ async def auto_refresh_jwt(
     user: UserRead = Depends(get_current_auth_user_for_refresh),
     payload: dict = Depends(TokenPayloadGetter(REFRESH_TOKEN_TYPE)),
 ):
-    access_token = create_access_token(
+    access_token = await create_access_token(
         user=user,
         session_uuid=payload.get("session_uuid"),
     )
