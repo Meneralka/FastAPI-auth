@@ -7,7 +7,6 @@ from fastapi.responses import ORJSONResponse
 from core.config import settings
 
 from api import router as api_router
-from core.fs_broker import broker
 from core.models import db_helper
 from logs import logger  # noqa: F401
 from api.exceptions.handlers import register_exception_handlers
@@ -17,13 +16,11 @@ from api.exceptions.handlers import register_exception_handlers
 async def lifespan(app: FastAPI):
     # startup
     # faststream broker
-    await broker.start()
 
     yield
 
     # shutdown
     # faststream broker
-    await broker.stop()
     await db_helper.dispose()
 
 
