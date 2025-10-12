@@ -3,7 +3,6 @@ import uuid
 from typing import Annotated, Sequence
 
 from fastapi import APIRouter, Depends, Response, Request, Form
-from fastapi.responses import ORJSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from loguru import logger as log
 from user_agents import parse
@@ -83,7 +82,7 @@ async def auth_user_issue_jwt(
         "[%(ip)s] [LOGIN] access_token %(user)s (id=%(id)s)"
         % {"ip": request.client.host, "user": user.username, "id": user.id},
     )
-    return ORJSONResponse({"status": "success"})
+    return {"success": True}
 
 
 @router.post("/refresh", response_model=Tokens, response_model_exclude_none=True)
