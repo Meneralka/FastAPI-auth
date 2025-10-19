@@ -162,7 +162,7 @@ async def get_sessions(
         session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
         user: UserRead = Depends(get_current_auth_user),
 ):
-    sessions: Sequence[SessionRead] = await get_user_sessions(
+    sessions = await get_user_sessions(
         session, sub_id=str(user.id)
     )
     return sessions
