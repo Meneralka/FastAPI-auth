@@ -1,51 +1,21 @@
-import json
-import functools
-import hashlib
-from typing import Callable, Any, Awaitable
-
 from redis.asyncio import Redis
 
-redis = Redis(host="localhost", port=6379, decode_responses=True)
+from core.config import settings
 
 
-def redis_cache(
-    ttl: int = 60,
-    namespace: str = "default",
-    read: bool = False,
-    write: bool = False,
-):
-    """
-    Кэширование с автоматической очисткой по namespace.
-    - ttl: время жизни кэша (секунды)
-    - namespace: логическая группа ключей (например 'users')
-    - read: кэшировать результат (True)
-    - write: очищать кэш при записи (True)
-    """
-    def decorator(func: Callable[..., Awaitable[Any]]):
-        @functools.wraps(func)
-        async def wrapper(*args, **kwargs):
-            if write:
-                pattern = f"{namespace}:*"
-                async for key in redis.scan_iter(match=pattern):
-                    await redis.delete(key)
+class RedisClient:
+    redis_client: Redis = Redis(
+        host=settings.redis.host,
+        port=settings.redis.port,
+        db=settings.redis.db,
+        decode_responses=settings.redis.decode_responses,
+    )
 
-                return await func(*args, **kwargs)
+    @classmethod
+    async def connect(cls):
+        await cls.redis_client.ping()
 
-            if read:
-                raw_key = f"{namespace}:{func.__module__}:{func.__name__}:{args}:{kwargs}"
-                key = hashlib.sha256(raw_key.encode()).hexdigest()
-                cache_key = f"{namespace}:{key}"
-
-                cached = await redis.get(cache_key)
-                if cached:
-                    return json.loads(cached)
-
-                result = await func(*args, **kwargs)
-
-                await redis.setex(cache_key, ttl, json.dumps(result, default=str))
-                return result
-
-            return await func(*args, **kwargs)
-
-        return wrapper
-    return decorator
+    @classmethod
+    async def close(cls):
+        if cls.redis_client:
+            await cls.redis_client.close()
