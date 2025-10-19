@@ -1,7 +1,6 @@
 import jwt
 import bcrypt
 
-import uuid
 from datetime import timedelta, datetime, UTC
 
 from api.exceptions.auth import (
