@@ -28,7 +28,6 @@ def create_jwt(
     jwt_payload.update({TOKEN_TYPE_FIELD: token_type})
     token = auth_utils.encode_jwt(
         payload=jwt_payload,
-        expire_minutes=expire_minutes,
         expire_timedelta=expire_timedelta,
     )
     return token
