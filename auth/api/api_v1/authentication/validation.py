@@ -47,7 +47,7 @@ def get_user_by_token_of_type(token_type: Literal["access", "refresh"]):
         )
         if session_info is None:
             raise TokenExpiredException
-        if session_info.status != SessionStatus.ACTIVE:
+        if session_info.status not in (SessionStatus.ACTIVE, 'active'):
             raise TokenExpiredException
 
         user = await get_user_by_id(
