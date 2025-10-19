@@ -44,12 +44,11 @@ class ApiV1Prefix(BaseModel):
     register_: str = "/register"
 
 
-class NatsConfig(BaseModel):
-    url: NatsDsn = "nats://nats:4222"
-
-
-class FastStream(BaseModel):
-    nats: NatsConfig = NatsConfig()
+class RedisConfig(BaseModel):
+    host: str = "redis"
+    port: int = 6379
+    db: int = 0
+    decode_responses: bool = False
 
 
 class Api(BaseModel):
@@ -82,6 +81,7 @@ class Settings(BaseSettings):
 
     run: RunConfig = RunConfig()
     api: Api = Api()
+    redis: RedisConfig = RedisConfig()
     db: DatabaseConfig
     auth: AuthJWT = AuthJWT()
     logs: LoggerSettings = LoggerSettings()
