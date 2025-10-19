@@ -34,10 +34,12 @@ class SessionBase(BaseModel):
     uuid: str
     name: str
     sub: str
-    status: SessionStatus = SessionStatus.ACTIVE
+    status: Optional[SessionStatus] = Field(
+            default= SessionStatus.ACTIVE, validate_default=True
+        )
 
 class SessionCreate(SessionBase):
-    pass
+    status: SessionStatus = SessionStatus.ACTIVE
 
 class SessionRead(SessionBase):
     id: str
