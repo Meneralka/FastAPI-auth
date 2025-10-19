@@ -8,19 +8,16 @@ from core.config import settings
 
 from api import router as api_router
 from core.models import db_helper
+from core.redis import RedisClient
 from logs import logger  # noqa: F401
 from api.exceptions.handlers import register_exception_handlers
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # startup
-    # faststream broker
 
     yield
 
-    # shutdown
-    # faststream broker
+    await RedisClient.close()
     await db_helper.dispose()
 
 
