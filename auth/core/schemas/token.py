@@ -1,6 +1,7 @@
 from datetime import datetime
+from typing import Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from core.models.user import SessionStatus
 
 class Tokens(BaseModel):
@@ -41,4 +42,10 @@ class SessionCreate(SessionBase):
 class SessionRead(SessionBase):
     id: str
     can_abort: bool
-    timestamp: datetime
+    timestamp: float
+
+    @field_validator("timestamp", mode='before')
+    def convert_datetime_to_timestamp(cls, v):
+        if isinstance(v, datetime):
+            return v.timestamp()
+        return v
