@@ -1,4 +1,3 @@
-import uuid
 from typing import Sequence
 
 from sqlalchemy import select
@@ -13,11 +12,10 @@ from api.exceptions.auth import (
     InvalidCredentialsException,
 )
 from core.models import User
-from core.schemas.user import UserReg
-from core.redis import redis_cache
+from core.schemas.user import UserReg, UserRead, UserAuth
+from core.redis.cache import Cache
 
 
-@redis_cache(read=True)
 async def get_all_users(
     session: AsyncSession,
 ) -> Sequence[User]:
@@ -26,7 +24,7 @@ async def get_all_users(
     return result.all()
 
 
-@redis_cache(read=True)
+@Cache.redis(read=True, namespace="users", model_class=UserAuth)
 async def get_user_by_username(
     session: AsyncSession,
     username: str,
@@ -35,7 +33,7 @@ async def get_user_by_username(
     result = await session.scalars(stmt)
     return result.first()
 
-@redis_cache(read=True)
+@Cache.redis(read=True, namespace="users", model_class=UserRead)
 async def get_user_by_id(
     session: AsyncSession,
     id_: str,
@@ -44,7 +42,6 @@ async def get_user_by_id(
     result = await session.scalars(stmt)
     return result.first()
 
-@redis_cache(read=True)
 async def create_user(session: AsyncSession, user_create: UserReg) -> User:
     user = User(**user_create.model_dump())
     session.add(user)

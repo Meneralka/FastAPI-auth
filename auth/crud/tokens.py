@@ -1,13 +1,15 @@
+from typing import Sequence
+
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.exceptions.auth import SessionNotFound
 from core.models.user import Session, SessionStatus
 
-from core.schemas.token import SessionCreate
-from core.redis import redis_cache
+from core.schemas.token import SessionCreate, SessionRead
+from core.redis.cache import Cache
 
-
+@Cache.redis(write=True, namespace="sessions")
 async def create_session(
     session: AsyncSession,
     new_session: SessionCreate,
@@ -16,21 +18,21 @@ async def create_session(
     session.add(new_session)
     await session.commit()
 
-@redis_cache(read=True)
+@Cache.redis(read=True, namespace="sessions", model_class=SessionRead)
 async def get_user_sessions(
     session: AsyncSession,
     sub_id: str,
-):
+) -> Sequence[Session]:
     stmt = select(Session).where(Session.sub == sub_id)
     result = await session.scalars(stmt)
     return result.all()
 
 
-@redis_cache(read=True)
+@Cache.redis(read=True, namespace="sessions", model_class=SessionRead)
 async def get_session_info(
     session: AsyncSession,
     uuid: str,
-):
+) -> Session:
     stmt = select(Session).where(
         Session.uuid == uuid, Session.status == SessionStatus.ACTIVE
     )
@@ -38,7 +40,7 @@ async def get_session_info(
     return result.one_or_none()
 
 
-@redis_cache(write=True)
+@Cache.redis(write=True, namespace="sessions")
 async def abort_session(
     session: AsyncSession,
     uuid: str,
@@ -52,7 +54,7 @@ async def abort_session(
     await session.commit()
 
 
-@redis_cache(write=True)
+@Cache.redis(write=True, namespace="sessions")
 async def abort_another_session(
     session: AsyncSession,
     current_user_uuid: str,
