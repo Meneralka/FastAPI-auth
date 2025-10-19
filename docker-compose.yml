@@ -21,6 +21,8 @@ services:
 
   redis:
     image: redis:latest
+    networks:
+      - shop
     container_name: redis-server
     ports:
       - "6379:6379"
