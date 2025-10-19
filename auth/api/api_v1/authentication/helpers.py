@@ -53,12 +53,19 @@ class CreateToken:
             "[CREATE TOKEN] for %(user)s - (session_uuid=%(session_uuid)s)"
             % {"user": user.id, "session_uuid": session_uuid}
         )
+        if self.token_type == ACCESS_TOKEN_TYPE:
+            expire_timedelta = timedelta(
+                minutes=settings.auth.access_token_expire_minutes
+            )
+        else:
+            expire_timedelta = timedelta(
+                days=settings.auth.refresh_token_expire_days
+            )
+
         return create_jwt(
             token_type=self.token_type,
             payload=jwt_payload,
-            expire_timedelta=timedelta(
-                minutes=settings.auth.access_token_expire_minutes
-            ),
+            expire_timedelta=expire_timedelta,
         )
 
 
