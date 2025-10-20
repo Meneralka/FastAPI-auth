@@ -73,7 +73,7 @@ async def get_session_info_from_payload(
 
     if session_info is None:
         raise TokenExpiredException
-    if session_info.status != SessionStatus.ACTIVE:
+    if session_info.status not in (SessionStatus.ACTIVE, 'active'):
         raise TokenExpiredException
 
     return session_info
