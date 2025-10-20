@@ -1,5 +1,7 @@
 # FastAPI Auth Service
 
+[🇷🇺 Читать на русском](./README.ru.md) 
+
 ## 🚀 Launch Instructions
 
 1. Copy `.env.example` and rename it to `.env`:
