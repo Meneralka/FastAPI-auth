@@ -51,16 +51,17 @@ async def auth_user_issue_jwt(
         uuid=session_uuid,
         sub=str(user.id),
         name=session_name,
+        ip=request.client.host,
     )
-    await create_session(session, user_session)
+    got_session = await create_session(session, user_session)
 
     access_token = await create_access_token(
         user=user,
-        session_uuid=session_uuid,
+        session_uuid=got_session.uuid,
     )
     refresh_token = await create_refresh_token(
         user=user,
-        session_uuid=session_uuid,
+        session_uuid=got_session.uuid,
     )
     response.set_cookie(
         "refresh_token",

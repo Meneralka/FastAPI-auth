@@ -34,6 +34,7 @@ class SessionBase(BaseModel):
     uuid: str
     name: str
     sub: str
+    ip: str
     status: Optional[SessionStatus] = Field(
             default= SessionStatus.ACTIVE, validate_default=True
         )

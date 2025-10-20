@@ -38,4 +38,5 @@ class Session(Base):
     )
     sub: Mapped[str] = MappedColumn(nullable=False)
     name: Mapped[str] = MappedColumn(nullable=False)
+    ip: Mapped[str] = MappedColumn(nullable=False)
     can_abort: Mapped[bool] = MappedColumn(nullable=False, default=False)

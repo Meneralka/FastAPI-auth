@@ -9,14 +9,48 @@ from core.models.user import Session, SessionStatus
 from core.schemas.token import SessionCreate, SessionRead
 from core.redis.cache import Cache
 
+
+@Cache.redis(read=True, namespace="sessions", model_class=SessionRead)
+async def get_same_session(
+        session: AsyncSession,
+        new_session: SessionCreate,
+) -> Session:
+    stmt = select(Session).where(
+        Session.sub == new_session.sub,
+        Session.ip == new_session.ip,
+        Session.name == new_session.name,
+    ).order_by(Session.id)
+
+    result = await session.scalar(stmt)
+    return result
+
+
 @Cache.redis(write=True, namespace="sessions")
 async def create_session(
-    session: AsyncSession,
-    new_session: SessionCreate,
+        session: AsyncSession,
+        new_session: SessionCreate,
 ):
-    new_session = Session(**new_session.model_dump())
-    session.add(new_session)
+    """
+    Создаёт новую сессию если не находит похожей уже существующей.
+    Похожей сессия считается, если у них совпадает:
+    - name (user-agent),
+    - ip (ip-address),
+    - Айди пользователя
+    """
+    if got_session := await get_same_session(session, new_session):
+        new_session.uuid = got_session.uuid
+        stmt = (
+            update(Session)
+            .where(Session.uuid == new_session.uuid)
+            .values(status=SessionStatus.ACTIVE)
+        )
+        await session.execute(stmt)
+    else:
+        new_session = Session(**new_session.model_dump())
+        session.add(new_session)
     await session.commit()
+    return new_session
+
 
 @Cache.redis(read=True, namespace="sessions", model_class=SessionRead)
 async def get_user_sessions(
