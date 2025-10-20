@@ -26,7 +26,7 @@ class LoggerSettings(BaseSettings):
 
 class RunConfig(BaseModel):
     host: str = "0.0.0.0"
-    port: int = 12021
+    port: int = 8000
 
 
 class AuthJWT(BaseModel):
