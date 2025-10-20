@@ -54,21 +54,26 @@ async def create_session(
 
 @Cache.redis(read=True, namespace="sessions", model_class=SessionRead)
 async def get_user_sessions(
-    session: AsyncSession,
-    sub_id: str,
+        session: AsyncSession,
+        sub_id: str,
 ) -> Sequence[Session]:
-    stmt = select(Session).where(Session.sub == sub_id)
+    stmt = (
+        select(Session)
+        .where(Session.sub == sub_id)
+        .order_by(Session.timestamp)
+    )
     result = await session.scalars(stmt)
     return result.all()
 
 
 @Cache.redis(read=True, namespace="sessions", model_class=SessionRead)
 async def get_session_info(
-    session: AsyncSession,
-    uuid: str,
+        session: AsyncSession,
+        uuid: str,
 ) -> Session:
     stmt = select(Session).where(
-        Session.uuid == uuid, Session.status == SessionStatus.ACTIVE
+        Session.uuid == uuid,
+        Session.status == SessionStatus.ACTIVE
     )
     result = await session.scalars(stmt)
     return result.one_or_none()
@@ -76,8 +81,8 @@ async def get_session_info(
 
 @Cache.redis(write=True, namespace="sessions")
 async def abort_session(
-    session: AsyncSession,
-    uuid: str,
+        session: AsyncSession,
+        uuid: str,
 ):
     stmt = (
         update(Session)
@@ -90,9 +95,9 @@ async def abort_session(
 
 @Cache.redis(write=True, namespace="sessions")
 async def abort_another_session(
-    session: AsyncSession,
-    current_user_uuid: str,
-    uuid: str,
+        session: AsyncSession,
+        current_user_uuid: str,
+        uuid: str,
 ):
     stmt = (
         update(Session)
