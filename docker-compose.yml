@@ -3,11 +3,11 @@ services:
   pg:
     image: postgres
     environment:
-      - POSTGRES_DB=auth
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:5432"
     networks:
       - shop
     healthcheck:
@@ -25,21 +25,21 @@ services:
       - shop
     container_name: redis-server
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT}:6379"
 
   app:
     networks:
       - shop
     image: fastapi:latest
     ports:
-      - "12021:8000"
+      - "8000:${APP_PORT}"
     environment:
-      - DB__URL=postgresql+asyncpg://user:password@pg:5432/auth
+      - DB__URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pg:${POSTGRES_PORT}/${POSTGRES_DB}
     depends_on:
       pg:
         condition: service_healthy
     command: >
-      sh -c "alembic upgrade head && uvicorn main:main_app --host 0.0.0.0 --port 8000"
+      sh -c "alembic upgrade head && uvicorn main:main_app --host ${APP_HOST} --port ${APP_PORT}"
     restart: unless-stopped
 
 networks:
