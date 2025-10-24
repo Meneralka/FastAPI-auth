@@ -30,6 +30,13 @@ router = APIRouter(
     prefix=settings.api.v1.demo_auth,
     tags=["Auth"],
 )
+@router.get("/verify")
+async def verify_jwt(
+        request: Request,
+        session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+        verify: UserRead = Depends(get_session_info_from_payload),
+):
+    return {"success": True}
 
 
 @router.post("/login")
