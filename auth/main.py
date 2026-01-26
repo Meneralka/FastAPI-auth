@@ -12,11 +12,11 @@ from core.redis import RedisClient
 from logs import logger  # noqa: F401
 from api.exceptions.handlers import register_exception_handlers
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-
+    # Инициировать подключение в этом месте не требуется
     yield
-
     await RedisClient.close()
     await db_helper.dispose()
 
