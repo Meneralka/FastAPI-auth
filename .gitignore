@@ -204,3 +204,6 @@ __marimo__/
 
 .idea/
 certs/
+
+auth_logs
+error_logs
