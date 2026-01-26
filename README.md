@@ -7,14 +7,15 @@
 1. Copy `.env.example` and rename it to `.env`:
    ```bash
    cp .env.example .env
-   
+   ```
 
 2. Issue private and public keys in directory "auth/certs"
    ```bash
    mkdir certs
    openssl genpkey -algorithm RSA -out jwt-private.pem -pkeyopt rsa_keygen_bits:2048
    openssl rsa -pubout -in jwt-private.pem -out jwt-public.pem
-   
+   ```   
+
 3. Build the Docker image and start the containers:
    ```bash
    docker build --tag fastapi:latest .
