@@ -27,7 +27,7 @@ from .validation import (
 from api.exceptions.auth import NeedMorePermission
 
 router = APIRouter(
-    prefix=settings.api.v1.demo_auth,
+    prefix=settings.api.v1.auth,
     tags=["Auth"],
 )
 @router.get("/verify")
