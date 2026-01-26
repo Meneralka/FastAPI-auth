@@ -30,21 +30,23 @@ router = APIRouter(
     prefix=settings.api.v1.auth,
     tags=["Auth"],
 )
+
+
 @router.get("/verify")
 async def verify_jwt(
-        request: Request,
-        session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
-        verify: UserRead = Depends(get_session_info_from_payload),
+    request: Request,
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    verify: UserRead = Depends(get_session_info_from_payload),
 ):
     return {"success": True}
 
 
 @router.post("/login")
 async def auth_user_issue_jwt(
-        response: Response,
-        request: Request,
-        session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
-        user: UserRead = Depends(validate_and_get_user),
+    response: Response,
+    request: Request,
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    user: UserRead = Depends(validate_and_get_user),
 ):
     user_agent_str = parse(request.headers.get("User-Agent", "Unknown"))
     session_name = (
@@ -93,10 +95,10 @@ async def auth_user_issue_jwt(
 
 @router.post("/refresh")
 async def auto_refresh_jwt(
-        request: Request,
-        response: Response,
-        user: UserRead = Depends(get_current_auth_user_for_refresh),
-        payload: dict = Depends(TokenPayloadGetter(REFRESH_TOKEN_TYPE)),
+    request: Request,
+    response: Response,
+    user: UserRead = Depends(get_current_auth_user_for_refresh),
+    payload: dict = Depends(TokenPayloadGetter(REFRESH_TOKEN_TYPE)),
 ):
     access_token = await create_access_token(
         user=user,
@@ -118,10 +120,10 @@ async def auto_refresh_jwt(
 
 @router.post("/logout", response_model_exclude_none=True)
 async def logout_user(
-        response: Response,
-        request: Request,
-        session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
-        session_data: SessionRead = Depends(get_session_info_from_payload),
+    response: Response,
+    request: Request,
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    session_data: SessionRead = Depends(get_session_info_from_payload),
 ):
     await abort_session(session=session, uuid=session_data.uuid)
     response.delete_cookie(
@@ -142,10 +144,10 @@ async def logout_user(
 
 @router.post("/abort")
 async def abort_user_session(
-        request: Request,
-        session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
-        session_data: SessionRead = Depends(get_session_info_from_payload),
-        sui: str = Form(),
+    request: Request,
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    session_data: SessionRead = Depends(get_session_info_from_payload),
+    sui: str = Form(),
 ):
 
     if not session_data.can_abort:
@@ -167,10 +169,8 @@ async def abort_user_session(
 
 @router.get("/sessions", response_model=Sequence[SessionRead])
 async def get_sessions(
-        session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
-        user: UserRead = Depends(get_current_auth_user),
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    user: UserRead = Depends(get_current_auth_user),
 ):
-    sessions = await get_user_sessions(
-        session, sub_id=str(user.id)
-    )
+    sessions = await get_user_sessions(session, sub_id=str(user.id))
     return sessions
