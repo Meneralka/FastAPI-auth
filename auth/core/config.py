@@ -9,6 +9,17 @@ ACCESS_TOKEN_TYPE = "access"
 REFRESH_TOKEN_TYPE = "refresh"
 
 
+class GoogleSettings(BaseSettings):
+    client_id: str
+    client_secret: str
+    scope: str = "openid"
+    redirect_uri: str = "https://localhost:8000/api/v1/auth/google/callback"
+    # prompt: str = "consent"
+    access_type: str = "online"
+    response_type: str = "code"
+    authorize_url: str = "https://accounts.google.com/o/oauth2/auth"
+
+
 class LoggerSettings(BaseSettings):
     file_format: str = (
         "{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {function} - {message}"
@@ -85,6 +96,7 @@ class Settings(BaseSettings):
     db: DatabaseConfig
     auth: AuthJWT = AuthJWT()
     logs: LoggerSettings = LoggerSettings()
+    google: GoogleSettings
 
 
 settings = Settings()
