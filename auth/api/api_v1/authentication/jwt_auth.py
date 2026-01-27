@@ -24,7 +24,8 @@ from .validation import (
     get_session_info_from_payload,
     TokenPayloadGetter,
 )
-from api.exceptions.auth import NeedMorePermission
+
+# from api.exceptions.auth import NeedMorePermission
 
 router = APIRouter(
     prefix=settings.api.v1.auth,
@@ -98,8 +99,8 @@ async def abort_user_session(
     sui: str = Form(),
 ):
 
-    if not session_data.can_abort:
-        raise NeedMorePermission
+    # if not session_data.can_abort:
+    #     raise NeedMorePermission
 
     await abort_another_session(
         session=session, current_user_uuid=session_data.sub, uuid=sui
