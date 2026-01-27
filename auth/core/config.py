@@ -18,6 +18,11 @@ class GoogleSettings(BaseSettings):
     access_type: str = "online"
     response_type: str = "code"
     authorize_url: str = "https://accounts.google.com/o/oauth2/auth"
+    token_url: str = "https://oauth2.googleapis.com/token"
+    grant_type: str = "authorization_code"
+    jwks_url: str = "https://www.googleapis.com/oauth2/v3/certs"
+    algorithm: str = "RS256"
+    redirect_after_auth_url: str = "http://localhost:8000/docs"
 
 
 class LoggerSettings(BaseSettings):
@@ -88,6 +93,7 @@ class Settings(BaseSettings):
         env_file=r".env",
         case_sensitive=False,
         env_nested_delimiter="__",
+        extra="ignore",
     )
 
     run: RunConfig = RunConfig()
