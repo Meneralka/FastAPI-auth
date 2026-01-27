@@ -1,6 +1,5 @@
 import enum
-import uuid
-from datetime import datetime, UTC
+from datetime import datetime
 
 from sqlalchemy.dialects.postgresql import BYTEA
 from sqlalchemy.orm import Mapped, MappedColumn
