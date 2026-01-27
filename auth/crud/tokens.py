@@ -12,14 +12,18 @@ from core.redis.cache import Cache
 
 @Cache.redis(read=True, namespace="sessions", model_class=SessionRead)
 async def get_same_session(
-        session: AsyncSession,
-        new_session: SessionCreate,
+    session: AsyncSession,
+    new_session: SessionCreate,
 ) -> Session:
-    stmt = select(Session).where(
-        Session.sub == new_session.sub,
-        Session.ip == new_session.ip,
-        Session.name == new_session.name,
-    ).order_by(Session.id)
+    stmt = (
+        select(Session)
+        .where(
+            Session.sub == new_session.sub,
+            Session.ip == new_session.ip,
+            Session.name == new_session.name,
+        )
+        .order_by(Session.id)
+    )
 
     result = await session.scalar(stmt)
     return result
@@ -27,11 +31,11 @@ async def get_same_session(
 
 @Cache.redis(write=True, namespace="sessions")
 async def create_session(
-        session: AsyncSession,
-        new_session: SessionCreate,
+    session: AsyncSession,
+    new_session: SessionCreate,
 ):
     """
-    Создаёт новую сессию если не находит похожей уже существующей.
+    Создаёт новую сессию если не находит похожей, уже существующей.
     Похожей сессия считается, если у них совпадает:
     - name (user-agent),
     - ip (ip-address),
@@ -54,26 +58,21 @@ async def create_session(
 
 @Cache.redis(read=True, namespace="sessions", model_class=SessionRead)
 async def get_user_sessions(
-        session: AsyncSession,
-        sub_id: str,
+    session: AsyncSession,
+    sub_id: str,
 ) -> Sequence[Session]:
-    stmt = (
-        select(Session)
-        .where(Session.sub == sub_id)
-        .order_by(Session.timestamp)
-    )
+    stmt = select(Session).where(Session.sub == sub_id).order_by(Session.timestamp)
     result = await session.scalars(stmt)
     return result.all()
 
 
 @Cache.redis(read=True, namespace="sessions", model_class=SessionRead)
 async def get_session_info(
-        session: AsyncSession,
-        uuid: str,
+    session: AsyncSession,
+    uuid: str,
 ) -> Session:
     stmt = select(Session).where(
-        Session.uuid == uuid,
-        Session.status == SessionStatus.ACTIVE
+        Session.uuid == uuid, Session.status == SessionStatus.ACTIVE
     )
     result = await session.scalars(stmt)
     return result.one_or_none()
@@ -81,8 +80,8 @@ async def get_session_info(
 
 @Cache.redis(write=True, namespace="sessions")
 async def abort_session(
-        session: AsyncSession,
-        uuid: str,
+    session: AsyncSession,
+    uuid: str,
 ):
     stmt = (
         update(Session)
@@ -95,9 +94,9 @@ async def abort_session(
 
 @Cache.redis(write=True, namespace="sessions")
 async def abort_another_session(
-        session: AsyncSession,
-        current_user_uuid: str,
-        uuid: str,
+    session: AsyncSession,
+    current_user_uuid: str,
+    uuid: str,
 ):
     stmt = (
         update(Session)
