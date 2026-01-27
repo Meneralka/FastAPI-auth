@@ -20,9 +20,9 @@ from utils import auth as auth_utils
 
 
 def create_jwt(
-        token_type: str,
-        payload: dict,
-        expire_timedelta: timedelta | None = None,
+    token_type: str,
+    payload: dict,
+    expire_timedelta: timedelta | None = None,
 ) -> str:
     jwt_payload = payload.copy()
     jwt_payload.update({TOKEN_TYPE_FIELD: token_type})
@@ -38,9 +38,9 @@ class CreateToken:
         self.token_type = token_type
 
     async def __call__(
-            self,
-            user: UserAuth,
-            session_uuid: str,
+        self,
+        user: UserAuth,
+        session_uuid: str,
     ) -> str:
         jwt_payload = {
             "sub": user.id,
@@ -56,9 +56,7 @@ class CreateToken:
                 minutes=settings.auth.access_token_expire_minutes
             )
         else:
-            expire_timedelta = timedelta(
-                days=settings.auth.refresh_token_expire_days
-            )
+            expire_timedelta = timedelta(days=settings.auth.refresh_token_expire_days)
 
         return create_jwt(
             token_type=self.token_type,
@@ -68,10 +66,10 @@ class CreateToken:
 
 
 async def validate_and_get_user(
-        session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
-        request: Request,
-        username: str = Form(),
-        password: str = Form(),
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    request: Request,
+    username: str = Form(),
+    password: str = Form(),
 ) -> User:
     user = await get_user_by_username(session=session, username=username)
     if not user:
@@ -81,7 +79,7 @@ async def validate_and_get_user(
         )
         raise InvalidCredentialsException
     if not auth_utils.validate_password(
-            password=password, hashed_password=user.hashed_password
+        password=password, hashed_password=user.hashed_password
     ):
         log.info(
             "[TRY TO LOGIN] failed attempt from %(ip)s for user %(username)s"
