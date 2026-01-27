@@ -5,9 +5,8 @@ from typing import Annotated, Sequence, Any
 from fastapi import APIRouter, Depends, Response, Request, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from loguru import logger as log
-from user_agents import parse
 
-from core.schemas.token import SessionCreate, SessionRead
+from core.schemas.token import SessionRead
 from crud.tokens import (
     create_session,
     abort_session,
