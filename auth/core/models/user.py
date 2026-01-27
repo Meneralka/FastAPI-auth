@@ -3,7 +3,7 @@ from datetime import datetime
 
 from sqlalchemy.dialects.postgresql import BYTEA
 from sqlalchemy.orm import Mapped, MappedColumn
-from sqlalchemy import String, DateTime, Enum
+from sqlalchemy import String, DateTime, Enum, ForeignKey
 from sqlalchemy.sql import func
 
 from .base import Base
@@ -35,7 +35,9 @@ class Session(Base):
     timestamp: Mapped[datetime] = MappedColumn(
         DateTime, server_default=func.current_timestamp()
     )
-    sub: Mapped[str] = MappedColumn(nullable=False)
+    sub: Mapped[str] = MappedColumn(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
     name: Mapped[str] = MappedColumn(nullable=False)
     ip: Mapped[str] = MappedColumn(nullable=False)
     can_abort: Mapped[bool] = MappedColumn(nullable=False, default=False)
