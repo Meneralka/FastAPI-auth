@@ -1,6 +1,6 @@
 import uuid
 
-from typing import Annotated, Sequence
+from typing import Annotated, Sequence, Any
 
 from fastapi import APIRouter, Depends, Response, Request, Form
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,7 +14,7 @@ from crud.tokens import (
     get_user_sessions,
     abort_another_session,
 )
-from .helpers import create_access_token, create_refresh_token, validate_and_get_user
+from .helpers import create_access_token
 from core.config import settings, REFRESH_TOKEN_TYPE
 from core.schemas.user import UserRead
 from core.models import db_helper
@@ -38,58 +38,6 @@ async def verify_jwt(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
     verify: UserRead = Depends(get_session_info_from_payload),
 ):
-    return {"success": True}
-
-
-@router.post("/login")
-async def auth_user_issue_jwt(
-    response: Response,
-    request: Request,
-    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
-    user: UserRead = Depends(validate_and_get_user),
-):
-    user_agent_str = parse(request.headers.get("User-Agent", "Unknown"))
-    session_name = (
-        f"{user_agent_str.browser.family} {user_agent_str.browser.version_string},"
-        f" {user_agent_str.os.family} {user_agent_str.os.version_string}"
-    )
-
-    session_uuid = str(uuid.uuid4())
-
-    user_session = SessionCreate(
-        uuid=session_uuid,
-        sub=str(user.id),
-        name=session_name,
-        ip=request.client.host,
-    )
-    got_session = await create_session(session, user_session)
-
-    access_token = await create_access_token(
-        user=user,
-        session_uuid=got_session.uuid,
-    )
-    refresh_token = await create_refresh_token(
-        user=user,
-        session_uuid=got_session.uuid,
-    )
-    response.set_cookie(
-        "refresh_token",
-        refresh_token,
-        max_age=settings.auth.refresh_token_expire_days * 24 * 60 * 60,
-        httponly=True,
-    )
-
-    response.set_cookie(
-        "access_token",
-        access_token,
-        max_age=settings.auth.access_token_expire_minutes * 24 * 60,
-        httponly=True,
-    )
-
-    log.info(
-        "[%(ip)s] [LOGIN] access_token %(user)s (id=%(id)s)"
-        % {"ip": request.client.host, "user": user.username, "id": user.id},
-    )
     return {"success": True}
 
 
