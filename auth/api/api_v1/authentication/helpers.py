@@ -14,8 +14,8 @@ from core.config import (
     REFRESH_TOKEN_TYPE,
 )
 from core.models import User, db_helper
-from core.schemas.user import UserAuth
-from crud.users import get_user_by_username
+from core.schemas.user import UserAuth, UserReg
+from crud.users import get_user_by_username, create_user
 from utils import auth as auth_utils
 
 
@@ -89,6 +89,16 @@ async def validate_and_get_user(
         )
         raise InvalidCredentialsException
 
+    return user
+
+
+async def validate_google_id(
+    google_id: str, session: Annotated[AsyncSession, Depends(db_helper.session_getter)]
+) -> User:
+    user = await get_user_by_username(session=session, username=google_id)
+    if not user:
+        user_schema = UserReg(username=google_id)
+        user = await create_user(session, user_schema)
     return user
 
 
