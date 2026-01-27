@@ -1,6 +1,21 @@
 from fastapi import HTTPException, status
 
 
+class ValueAlreadyExistsException(HTTPException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Value already exists"
+        )
+
+
+class NoIdTokenException(HTTPException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Token has not been identified",
+        )
+
+
 class InvalidTokenException(HTTPException):
     def __init__(self):
         super().__init__(
@@ -11,7 +26,7 @@ class InvalidTokenException(HTTPException):
 class TokenUnidentifiedException(HTTPException):
     def __init__(self):
         super().__init__(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail="Token has not been identified",
         )
 
@@ -36,13 +51,6 @@ class InvalidCredentialsException(HTTPException):
         super().__init__(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid username or password",
-        )
-
-
-class ValueAlreadyExistsException(HTTPException):
-    def __init__(self):
-        super().__init__(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Value already exists"
         )
 
 
