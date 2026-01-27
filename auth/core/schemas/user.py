@@ -11,7 +11,7 @@ class UserRead(UserBase):
     id: str
 
 class UserAuth(UserRead):
-    hashed_password: bytes
+    pass
 
 class UserReg(UserBase):
-    hashed_password: bytes | None = None
+    pass
