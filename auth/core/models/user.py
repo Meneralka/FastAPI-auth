@@ -21,10 +21,6 @@ class User(Base):
         nullable=False,
         unique=True,
     )
-    hashed_password: Mapped[bytes] = MappedColumn(
-        BYTEA,
-        nullable=False,
-    )
 
 
 class Session(Base):
