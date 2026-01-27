@@ -50,8 +50,8 @@ async def create_session(
         )
         await session.execute(stmt)
     else:
-        new_session = Session(**new_session.model_dump())
-        session.add(new_session)
+        new_session_stmt = Session(**new_session.model_dump())
+        session.add(new_session_stmt)
     await session.commit()
     return new_session
 
