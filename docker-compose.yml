@@ -9,7 +9,7 @@ services:
     ports:
       - "${POSTGRES_PORT}:5432"
     networks:
-      - shop
+      - auth
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U user -d auth" ]
       interval: 2s
@@ -22,14 +22,14 @@ services:
   redis:
     image: redis:latest
     networks:
-      - shop
+      - auth
     container_name: redis-server
     ports:
       - "${REDIS_PORT}:6379"
 
   app:
     networks:
-      - shop
+      - auth
     image: fastapi:latest
     ports:
       - "8000:${APP_PORT}"
@@ -45,7 +45,7 @@ services:
     restart: unless-stopped
 
 networks:
-  shop:
+  auth:
     driver: bridge
 
 volumes:
