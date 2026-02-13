@@ -75,7 +75,7 @@ class Forbidden(BaseAuthException):
         super().__init__(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid Token")
 
 
-class NeedMorePermission(HTTPException):
+class NeedMorePermission(BaseAuthException):
     def __init__(self):
         super().__init__(
             status_code=status.HTTP_403_FORBIDDEN,
