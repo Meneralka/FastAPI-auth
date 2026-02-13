@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
+from starlette.middleware.cors import CORSMiddleware
 
 from core.config import settings
 
@@ -26,6 +27,12 @@ main_app = FastAPI(
     lifespan=lifespan,
 )
 register_exception_handlers(main_app)
+main_app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 main_app.include_router(
     api_router,
 )
