@@ -6,7 +6,7 @@ class BaseAuthException(HTTPException):
                  *,
                  status_code: int,
                  detail: str | dict[str, str],
-                 error_type: str = "Authorization failed",
+                 error_type: str = "authorizationFailed",
                  ):
         super().__init__(
             detail={"status": "error",
