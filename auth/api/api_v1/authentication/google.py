@@ -42,7 +42,6 @@ def login_via_google():
 @router.get("/google/callback")
 async def google_callback(
     code: str,
-    response: Response,
     request: Request,
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
 ):
