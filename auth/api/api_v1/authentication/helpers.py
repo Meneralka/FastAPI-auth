@@ -65,31 +65,6 @@ class CreateToken:
         )
 
 
-async def validate_and_get_user(
-    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
-    request: Request,
-    username: str = Form(),
-    password: str = Form(),
-) -> User:
-    user = await get_user_by_username(session=session, username=username)
-    if not user:
-        log.info(
-            "[TRY TO LOGIN] invalid username %(username)s from %(ip)s"
-            % {"username": username[:20], "ip": request.client.host}
-        )
-        raise InvalidCredentialsException
-    if not auth_utils.validate_password(
-        password=password, hashed_password=user.hashed_password
-    ):
-        log.info(
-            "[TRY TO LOGIN] failed attempt from %(ip)s for user %(username)s"
-            % {"username": username, "ip": request.client.host}
-        )
-        raise InvalidCredentialsException
-
-    return user
-
-
 async def validate_google_id(
     google_id: str, session: Annotated[AsyncSession, Depends(db_helper.session_getter)]
 ) -> User:
