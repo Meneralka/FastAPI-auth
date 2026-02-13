@@ -1,23 +1,19 @@
 import uuid
 
 import httpx
-import jwt
 from fastapi import APIRouter, Request, Response, Depends
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from user_agents import parse
 
 from core.schemas.token import SessionCreate
 from core.schemas.user import UserRead
 from crud.tokens import create_session
 from .helpers import create_access_token, create_refresh_token, validate_google_id
 
-from jwt import PyJWKClient
 import urllib.parse
 from typing import Any, Annotated
 
 from core.config import settings
-from api.exceptions.auth import NoIdTokenException
 from core.models import db_helper
 
 router = APIRouter(
