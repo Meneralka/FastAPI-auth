@@ -47,7 +47,6 @@ async def verify_jwt(
 @router.post("/refresh")
 async def auto_refresh_jwt(
     request: Request,
-    response: Response,
     user: UserRead = Depends(get_current_auth_user_for_refresh),
     payload: dict = Depends(TokenPayloadGetter(REFRESH_TOKEN_TYPE)),
 ):
@@ -55,6 +54,9 @@ async def auto_refresh_jwt(
         user=user,
         session_uuid=payload.get("session_uuid"),
     )
+    response = ORJSONResponse({"detail": {
+        "status": "ok",
+    }})
     response.set_cookie(
         "access_token",
         access_token,
@@ -66,9 +68,7 @@ async def auto_refresh_jwt(
         "[%(ip)s] [REFRESH] access_token %(user)s (id=%(id)s)"
         % {"ip": request.client.host, "user": user.username, "id": user.id},
     )
-    return ORJSONResponse({"detail": {
-        "status": "ok",
-    }})
+    return response
 
 
 
