@@ -1,14 +1,30 @@
 from fastapi import HTTPException, status
 
 
-class ValueAlreadyExistsException(HTTPException):
-    def __init__(self):
+class BaseAuthException(HTTPException):
+    def __init__(self,
+                 *,
+                 status_code: int,
+                 detail: str | dict[str, str],
+                 error_type: str = "Authorization failed",
+                 ):
         super().__init__(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Value already exists"
+            detail={"status": "error",
+                    "type": error_type,
+                    "detail": detail},
+            status_code=status_code,
         )
 
 
-class NoIdTokenException(HTTPException):
+class ValueAlreadyExistsException(BaseAuthException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Value already exists"
+        )
+
+
+class NoIdTokenException(BaseAuthException):
     def __init__(self):
         super().__init__(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -16,14 +32,14 @@ class NoIdTokenException(HTTPException):
         )
 
 
-class InvalidTokenException(HTTPException):
+class InvalidTokenException(BaseAuthException):
     def __init__(self):
         super().__init__(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
         )
 
 
-class TokenUnidentifiedException(HTTPException):
+class TokenUnidentifiedException(BaseAuthException):
     def __init__(self):
         super().__init__(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -31,7 +47,7 @@ class TokenUnidentifiedException(HTTPException):
         )
 
 
-class TokenTypeException(HTTPException):
+class TokenTypeException(BaseAuthException):
     def __init__(self):
         super().__init__(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -39,14 +55,14 @@ class TokenTypeException(HTTPException):
         )
 
 
-class TokenExpiredException(HTTPException):
+class TokenExpiredException(BaseAuthException):
     def __init__(self):
         super().__init__(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired"
         )
 
 
-class InvalidCredentialsException(HTTPException):
+class InvalidCredentialsException(BaseAuthException):
     def __init__(self):
         super().__init__(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -54,7 +70,7 @@ class InvalidCredentialsException(HTTPException):
         )
 
 
-class Forbidden(HTTPException):
+class Forbidden(BaseAuthException):
     def __init__(self):
         super().__init__(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid Token")
 
@@ -67,7 +83,7 @@ class NeedMorePermission(HTTPException):
         )
 
 
-class SessionNotFound(HTTPException):
+class SessionNotFound(BaseAuthException):
     def __init__(self):
         super().__init__(
             status_code=status.HTTP_404_NOT_FOUND,

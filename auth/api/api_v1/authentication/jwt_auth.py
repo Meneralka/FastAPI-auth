@@ -3,6 +3,7 @@ import uuid
 from typing import Annotated, Sequence, Any
 
 from fastapi import APIRouter, Depends, Response, Request, Form
+from fastapi.responses import ORJSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from loguru import logger as log
 
@@ -38,7 +39,9 @@ async def verify_jwt(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
     verify: UserRead = Depends(get_session_info_from_payload),
 ):
-    return {"success": True}
+    return ORJSONResponse({"detail": {
+        "status": "ok",
+    }})
 
 
 @router.post("/refresh")
@@ -63,7 +66,10 @@ async def auto_refresh_jwt(
         "[%(ip)s] [REFRESH] access_token %(user)s (id=%(id)s)"
         % {"ip": request.client.host, "user": user.username, "id": user.id},
     )
-    return {"success": True}
+    return ORJSONResponse({"detail": {
+        "status": "ok",
+    }})
+
 
 
 @router.post("/logout", response_model_exclude_none=True)
@@ -87,7 +93,10 @@ async def logout_user(
             "session_uuid": session_data.uuid,
         },
     )
-    return {"success": True}
+    return ORJSONResponse({"detail": {
+        "status": "ok",
+    }})
+
 
 
 @router.post("/abort")
@@ -112,7 +121,10 @@ async def abort_user_session(
             "session_uuid": session_data.sub,
         },
     )
-    return {"success": True}
+    return ORJSONResponse({"detail": {
+        "status": "ok",
+    }})
+
 
 
 @router.get("/sessions", response_model=Sequence[SessionRead])
