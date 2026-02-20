@@ -1,15 +1,12 @@
-import uuid
+from typing import Annotated, Sequence
 
-from typing import Annotated, Sequence, Any
-
-from fastapi import APIRouter, Depends, Response, Request, Form
+from fastapi import APIRouter, Depends, Response, Request, Form, status
 from fastapi.responses import ORJSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from loguru import logger as log
 
 from core.schemas.token import SessionRead
 from crud.tokens import (
-    create_session,
     abort_session,
     get_user_sessions,
     abort_another_session,
@@ -33,15 +30,31 @@ router = APIRouter(
 )
 
 
+@router.get("/ping")
+async def ping():
+    return ORJSONResponse(
+        {
+            "detail": {
+                "ping": "pong",
+                "status": "ok",
+            }
+        }
+    )
+
+
 @router.get("/verify")
 async def verify_jwt(
     request: Request,
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
     verify: UserRead = Depends(get_session_info_from_payload),
 ):
-    return ORJSONResponse({"detail": {
-        "status": "ok",
-    }})
+    return ORJSONResponse(
+        {
+            "detail": {
+                "status": "ok",
+            }
+        }
+    )
 
 
 @router.post("/refresh")
@@ -54,9 +67,13 @@ async def auto_refresh_jwt(
         user=user,
         session_uuid=payload.get("session_uuid"),
     )
-    response = ORJSONResponse({"detail": {
-        "status": "ok",
-    }})
+    response = ORJSONResponse(
+        {
+            "detail": {
+                "status": "ok",
+            }
+        }
+    )
     response.set_cookie(
         "access_token",
         access_token,
@@ -69,7 +86,6 @@ async def auto_refresh_jwt(
         % {"ip": request.client.host, "user": user.username, "id": user.id},
     )
     return response
-
 
 
 @router.post("/logout", response_model_exclude_none=True)
@@ -93,10 +109,13 @@ async def logout_user(
             "session_uuid": session_data.uuid,
         },
     )
-    return ORJSONResponse({"detail": {
-        "status": "ok",
-    }})
-
+    return ORJSONResponse(
+        {
+            "detail": {
+                "status": "ok",
+            }
+        }
+    )
 
 
 @router.post("/abort")
@@ -121,10 +140,13 @@ async def abort_user_session(
             "session_uuid": session_data.sub,
         },
     )
-    return ORJSONResponse({"detail": {
-        "status": "ok",
-    }})
-
+    return ORJSONResponse(
+        {
+            "detail": {
+                "status": "ok",
+            }
+        }
+    )
 
 
 @router.get("/sessions", response_model=Sequence[SessionRead])
